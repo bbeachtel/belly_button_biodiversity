@@ -65,47 +65,65 @@ function buildCharts(sample) {
     Plotly.newPlot('bubble', data, layout1);
 
     // For the Bar Chart, map the otu_ids to a list of strings for your yticks
-    yticks = otu_ids.map(ids => ids.toString());
+    // Don't forget to slice and reverse the input data appropriately
+    let top10OtuIds = otu_ids.slice(0, 10).reverse();
+    let top10SampleValues = sample_values.slice(0, 10).reverse();
+    let top10OtuLabels = otu_labels.slice(0, 10).reverse();
 
     // Build a Bar Chart
-    // Don't forget to slice and reverse the input data appropriately
+    let trace2 = {
+      x: top10SampleValues,
+      y: top10OtuIds.map(id => `OTU ${id}`), // Format OTU IDs
+      type: 'bar',
+      orientation: 'h',
+      text: top10OtuLabels
+    };
 
+    let layout2 = {
+      title: 'Top 10 Bacteria Cultures Found',
+      xaxis: { title: 'Number of Bacteria' },
+      yaxis: { title: 'OTU ID' }
+    };
+
+    let data2 = [trace2];
 
     // Render the Bar Chart
-
+    Plotly.newPlot('bar', data2, layout2);
   });
 }
 
-// // Function to run on page load
-// function init() {
-//   d3.json("https://static.bc-edx.com/data/dl-1-2/m14/lms/starter/samples.json").then((data) => {
+// Function to run on page load
+function init() {
+  d3.json("https://static.bc-edx.com/data/dl-1-2/m14/lms/starter/samples.json").then((data) => {
 
-//     // Get the names field
-//     let names = data.names;
+    // Get the names field
+    let names = data.names;
 
-//     // Use d3 to select the dropdown with id of `#selDataset`
-//     let dropdown = d3.select('#selDataset')
+    // Use d3 to select the dropdown with id of `#selDataset`
+    let dropdown = d3.select('#selDataset')
 
-//     // Use the list of sample names to populate the select options
-//     // Hint: Inside a loop, you will need to use d3 to append a new
-//     // option for each sample name.
-//     for (let i=0, i<names.length, i++){
-//       dropdown.append('option').attr('value', names[i]).text(names[i]);
-//     }
+    // Use the list of sample names to populate the select options
+    // Hint: Inside a loop, you will need to use d3 to append a new
+    // option for each sample name.
+    for (let i=0; i<names.length; i++){
+      dropdown.append('option').attr('value', names[i]).text(names[i]);
+    }
 
-//     // Get the first sample from the list
-//     let firstSample = names[0]
+    // Get the first sample from the list
+    let firstSample = names[0]
 
-//     // Build charts and metadata panel with the first sample
+    // Build charts and metadata panel with the first sample
+    buildCharts(firstSample);
+    buildMetadata(firstSample);
+  });
+}
 
-//   });
-// }
+// Function for event listener
+function optionChanged(newSample) {
+  // Build charts and metadata panel each time a new sample is selected
+  buildCharts(newSample);
+  buildMetadata(newSample);
+}
 
-// // Function for event listener
-// function optionChanged(newSample) {
-//   // Build charts and metadata panel each time a new sample is selected
-
-// }
-
-// // Initialize the dashboard
-// init();
+// Initialize the dashboard
+init();
